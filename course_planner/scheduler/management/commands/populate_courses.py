@@ -1,3 +1,4 @@
+from scheduler.models import Course
 from django.core.management.base import BaseCommand
 from scheduler.models import Course
 
@@ -11,11 +12,11 @@ class Command(BaseCommand):
                 'code': 'VE281',
                 'name': 'Data Structures and Algorithms',
                 'credits': 4,
-                'description': 'Introduction to fundamental data structures and algorithms',
+                'description': 'This course provides an introduction to fundamental data structures and algorithms. Topics include dynamic arrays, linked lists, stacks, queues, trees, graphs, sorting algorithms, and algorithm analysis. Students will learn to implement these data structures and analyze their time and space complexity.',
                 'time_slots': [
-                    {'day': 'Mon', 'start': '09:00', 'end': '10:30'},
-                    {'day': 'Wed', 'start': '09:00', 'end': '10:30'},
-                    {'day': 'Fri', 'start': '09:00', 'end': '10:30'}
+                    {'day': 'Mon', 'start': '09:30', 'end': '11:00'},
+                    {'day': 'Wed', 'start': '09:30', 'end': '11:00'},
+                    {'day': 'Fri', 'start': '09:30', 'end': '11:00'}
                 ],
                 'available_semesters': ['fall', 'spring'],
                 'difficulty_level': 4,
@@ -40,7 +41,7 @@ class Command(BaseCommand):
                 'credits': 4,
                 'description': 'Mathematical foundations for computer science',
                 'time_slots': [
-                    {'day': 'Tue', 'start': '9:30', 'end': '15:00'},
+                    {'day': 'Mon', 'start': '13:30', 'end': '15:00'},
                     {'day': 'Wed', 'start': '13:30', 'end': '15:00'},
                     {'day': 'Fri', 'start': '13:30', 'end': '15:00'}
                 ],
