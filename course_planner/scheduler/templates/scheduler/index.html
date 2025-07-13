@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JI Course Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        
+        .course-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .course-item {
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        
+        .course-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .course-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f3f4;
+        }
+        
+        .course-code {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        
+        .course-name {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .course-credits {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .difficulty-indicator {
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .difficulty-star {
+            color: #ffc107;
+            font-size: 0.8em;
+        }
+        
+        .scheduler-area {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+        }
+        
+        .semester-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .semester-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #666;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .semester-tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .semester-tab:hover {
+            background: #f8f9fa;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            grid-template-rows: 40px repeat(12, 60px);
+            gap: 2px;
+            margin-bottom: 20px;
+        }
+        
+        .time-slot {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .day-header {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        
+        .time-header {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
+        
+        .schedule-slot {
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            min-height: 60px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .schedule-slot.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .scheduled-course {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 2px;
+            font-size: 0.9em;
+            position: relative;
+            cursor: move;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .scheduled-course:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .remove-course {
+            position: absolute;
+            top: 2px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-course:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .conflict-warning {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .stats-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+        }
+        
+        .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .filter-checkbox {
+            margin-bottom: 10px;
+        }
+        
+        .filter-checkbox input {
+            margin-right: 8px;
+        }
+        
+        .filter-checkbox label {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .schedule-grid {
+                grid-template-columns: 80px repeat(5, 1fr);
+                grid-template-rows: 30px repeat(12, 50px);
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>JI Course Planner</h1>
+            <p>Plan your academic schedule with interactive drag-and-drop functionality</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="filter-section">
+                    <h3>Filter Courses</h3>
+                    <input type="text" class="filter-input" id="searchInput" placeholder="Search courses...">
+                    <div class="filter-checkbox">
+                        <input type="checkbox" id="fallFilter" checked>
+                        <label for="fallFilter">Fall Semester</label>
+                    </div>
+                    <div class="filter-checkbox">
+                        <input type="checkbox" id="springFilter" checked>
+                        <label for="springFilter">Spring Semester</label>
+                    </div>
+                </div>
+                
+                <h3>Available Courses</h3>
+                <div class="course-list" id="courseList">
+                    <!-- Courses will be populated here -->
+                </div>
+                
+                <div class="stats-section">
+                    <h3>Current Schedule</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalCredits">0</div>
+                            <div class="stat-label">Total Credits</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalCourses">0</div>
+                            <div class="stat-label">Courses</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="avgDifficulty">0</div>
+                            <div class="stat-label">Avg Difficulty</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalWorkload">0</div>
+                            <div class="stat-label">Hours/Week</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scheduler-area">
+                <div class="semester-tabs">
+                    <button class="semester-tab active" data-semester="fall">Fall 2025</button>
+                    <button class="semester-tab" data-semester="spring">Spring 2026</button>
+                </div>
+                
+                <div id="conflictWarnings"></div>
+                
+                <div class="schedule-grid" id="scheduleGrid">
+                    <!-- Grid will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let allCourses = [];
+        let currentSchedule = [];
+        let currentSemester = 'fall';
+        let draggedElement = null;
+        
+        // Time slots for the grid
+        const timeSlots = [
+            '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
+            '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00',
+            '16:00-17:00', '17:00-18:00', '18:00-19:00', '19:00-20:00'
+        ];
+        
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGrid();
+            loadCourses();
+            setupEventListeners();
+        });
+        
+        // Create the schedule grid
+        function initializeGrid() {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '';
+            
+            // Empty corner cell
+            grid.appendChild(createGridCell('', 'time-slot'));
+            
+            // Day headers
+            days.forEach(day => {
+                grid.appendChild(createGridCell(day, 'day-header'));
+            });
+            
+            // Time slots and schedule cells
+            timeSlots.forEach(timeSlot => {
+                // Time header
+                grid.appendChild(createGridCell(timeSlot, 'time-header'));
+                
+                // Schedule slots for each day
+                days.forEach(day => {
+                    const cell = createGridCell('', 'schedule-slot');
+                    cell.dataset.day = day;
+                    cell.dataset.timeSlot = timeSlot;
+                    setupDropZone(cell);
+                    grid.appendChild(cell);
+                });
+            });
+        }
+        
+        // Create a grid cell element
+        function createGridCell(content, className) {
+            const cell = document.createElement('div');
+            cell.className = `time-slot ${className}`;
+            cell.innerHTML = content;
+            return cell;
+        }
+        
+        // Setup drop zone for schedule cells
+        function setupDropZone(cell) {
+            cell.addEventListener('dragover', handleDragOver);
+            cell.addEventListener('drop', handleDrop);
+            cell.addEventListener('dragleave', handleDragLeave);
+        }
+        
+        // Load courses from API
+        async function loadCourses() {
+            try {
+                const response = await fetch('/api/courses/');
+                const data = await response.json();
+                allCourses = data.courses;
+                renderCourseList();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+        
+        // Render the course list in sidebar
+        function renderCourseList() {
+            const courseList = document.getElementById('courseList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const showFall = document.getElementById('fallFilter').checked;
+            const showSpring = document.getElementById('springFilter').checked;
+            
+            courseList.innerHTML = '';
+            
+            const filteredCourses = allCourses.filter(course => {
+                const matchesSearch = course.code.toLowerCase().includes(searchTerm) || 
+                                    course.name.toLowerCase().includes(searchTerm);
+                const matchesSemester = (showFall && course.available_semesters.includes('fall')) ||
+                                      (showSpring && course.available_semesters.includes('spring'));
+                return matchesSearch && matchesSemester;
+            });
+            
+            filteredCourses.forEach(course => {
+                const courseItem = document.createElement('div');
+                courseItem.className = 'course-item';
+                courseItem.draggable = true;
+                courseItem.dataset.courseId = course.id;
+                
+                // Check if course is already scheduled
+                const isScheduled = currentSchedule.some(item => item.course.id === course.id);
+                if (isScheduled) {
+                    courseItem.classList.add('disabled');
+                    courseItem.draggable = false;
+                }
+                
+                courseItem.innerHTML = `
+                    <div class="course-code">${course.code}</div>
+                    <div class="course-name">${course.name}</div>
+                    <div class="course-credits">${course.credits} credits</div>
+                    <div class="difficulty-indicator">
+                        ${'★'.repeat(course.difficulty_level)}${'☆'.repeat(5-course.difficulty_level)}
+                    </div>
+                `;
+                
+                courseItem.addEventListener('dragstart', handleDragStart);
+                courseList.appendChild(courseItem);
+            });
+        }
+        
+        // Handle drag start
+        function handleDragStart(e) {
+            if (e.target.classList.contains('disabled')) {
+                e.preventDefault();
+                return;
+            }
+            draggedElement = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        // Handle drag over
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.target.classList.add('drag-over');
+        }
+        
+        // Handle drag leave
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+        
+        // Handle drop
+        async function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (!draggedElement) return;
+            
+            const courseId = parseInt(draggedElement.dataset.courseId);
+            const course = allCourses.find(c => c.id === courseId);
+            
+            if (!course) return;
+            
+            // Check if course is available for current semester
+            if (!course.available_semesters.includes(currentSemester)) {
+                alert(`Course ${course.code} is not available in ${currentSemester} semester`);
+                return;
+            }
+            
+            // Add to schedule
+            await addCourseToSchedule(course);
+            draggedElement = null;
+        }
+        
+        // Add course to schedule
+        async function addCourseToSchedule(course) {
+            // Check for conflicts
+            const conflicts = await checkScheduleConflicts([...currentSchedule.map(s => s.course.id), course.id]);
+            
+            if (conflicts.length > 0) {
+                const conflictMessages = conflicts.map(c => 
+                    `${c.course1} conflicts with ${c.course2} on ${c.day}`
+                ).join('\n');
+                
+                if (!confirm(`Warning: Schedule conflicts detected:\n${conflictMessages}\n\nDo you want to add this course anyway?`)) {
+                    return;
+                }
+            }
+            
+            // Add to current schedule
+            const scheduleItem = {
+                course: course,
+                semester: currentSemester,
+                year: currentSemester === 'fall' ? 2025 : 2026
+            };
+            
+            currentSchedule.push(scheduleItem);
+            
+            // Update UI
+            renderScheduledCourses();
+            renderCourseList();
+            updateStats();
+            showConflictWarnings();
+        }
+        
+        // Remove course from schedule
+        function removeCourseFromSchedule(courseId) {
+            currentSchedule = currentSchedule.filter(item => item.course.id !== courseId);
+            renderScheduledCourses();
+            renderCourseList();
+            updateStats();
+            showConflictWarnings();
+        }
+        
+        // Render scheduled courses on the grid
+        function renderScheduledCourses() {
+            // Clear existing scheduled courses
+            document.querySelectorAll('.scheduled-course').forEach(el => el.remove());
+            
+            // Add courses for current semester
+            const semesterCourses = currentSchedule.filter(item => item.semester === currentSemester);
+            
+            semesterCourses.forEach(scheduleItem => {
+                const course = scheduleItem.course;
+                
+                course.time_slots.forEach(timeSlot => {
+                    const cell = findScheduleCell(timeSlot.day, timeSlot.start, timeSlot.end);
+                    if (cell) {
+                        const courseElement = document.createElement('div');
+                        courseElement.className = 'scheduled-course';
+                        courseElement.innerHTML = `
+                            <div>${course.code}</div>
+                            <div style="font-size: 0.8em; opacity: 0.9;">${timeSlot.start}-${timeSlot.end}</div>
+                            <button class="remove-course" onclick="removeCourseFromSchedule(${course.id})">×</button>
+                        `;
+                        cell.appendChild(courseElement);
+                    }
+                });
+            });
+        }
+        
+        // Find schedule cell for given day and time
+        function findScheduleCell(day, startTime, endTime) {
+            const cells = document.querySelectorAll('.schedule-slot');
+            
+            for (let cell of cells) {
+                if (cell.dataset.day === day) {
+                    const cellTimeSlot = cell.dataset.timeSlot;
+                    const [cellStart, cellEnd] = cellTimeSlot.split('-');
+                    
+                    // Check if the time slot matches or overlaps
+                    if (timeOverlaps(startTime, endTime, cellStart, cellEnd)) {
+                        return cell;
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // Check if two time ranges overlap
+        function timeOverlaps(start1, end1, start2, end2) {
+            const toMinutes = (time) => {
+                const [hours, minutes] = time.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+            
+            const s1 = toMinutes(start1);
+            const e1 = toMinutes(end1);
+            const s2 = toMinutes(start2);
+            const e2 = toMinutes(end2);
+            
+            return !(e1 <= s2 || e2 <= s1);
+        }
+        
+        // Check for schedule conflicts
+        async function checkScheduleConflicts(courseIds) {
+            if (courseIds.length < 2) return [];
+            
+            try {
+                const response = await fetch(`/api/conflicts/?course_ids=${courseIds.join(',')}`);
+                const data = await response.json();
+                return data.conflicts || [];
+            } catch (error) {
+                console.error('Error checking conflicts:', error);
+                return [];
+            }
+        }
+        
+        // Show conflict warnings
+        async function showConflictWarnings() {
+            const warningsDiv = document.getElementById('conflictWarnings');
+            const semesterCourses = currentSchedule.filter(item => item.semester === currentSemester);
+            const courseIds = semesterCourses.map(item => item.course.id);
+            
+            const conflicts = await checkScheduleConflicts(courseIds);
+            
+            if (conflicts.length > 0) {
+                warningsDiv.innerHTML = conflicts.map(conflict => 
+                    `<div class="conflict-warning">
+                        ⚠️ ${conflict.course1} conflicts with ${conflict.course2} on ${conflict.day}
+                    </div>`
+                ).join('');
+            } else {
+                warningsDiv.innerHTML = '';
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const semesterCourses = currentSchedule.filter(item => item.semester === currentSemester);
+            
+            const totalCredits = semesterCourses.reduce((sum, item) => sum + item.course.credits, 0);
+            const totalCourses = semesterCourses.length;
+            const avgDifficulty = totalCourses > 0 ? 
+                (semesterCourses.reduce((sum, item) => sum + item.course.difficulty_level, 0) / totalCourses).toFixed(1) : 0;
+            const totalWorkload = semesterCourses.reduce((sum, item) => sum + item.course.workload_hours, 0);
+            
+            document.getElementById('totalCredits').textContent = totalCredits;
+            document.getElementById('totalCourses').textContent = totalCourses;
+            document.getElementById('avgDifficulty').textContent = avgDifficulty;
+            document.getElementById('totalWorkload').textContent = totalWorkload;
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Semester tabs
+            document.querySelectorAll('.semester-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.semester-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSemester = this.dataset.semester;
+                    renderScheduledCourses();
+                    updateStats();
+                    showConflictWarnings();
+                });
+            });
+            
+            // Search and filter
+            document.getElementById('searchInput').addEventListener('input', renderCourseList);
+            document.getElementById('fallFilter').addEventListener('change', renderCourseList);
+            document.getElementById('springFilter').addEventListener('change', renderCourseList);
+        }
+    </script>
+</body>
+</html>
