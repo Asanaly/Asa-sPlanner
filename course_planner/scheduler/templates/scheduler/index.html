@@ -25,12 +25,24 @@
                     <h3>Filter Courses</h3>
                     <input type="text" class="filter-input" id="searchInput" placeholder="Search courses...">
                     <div class="filter-checkbox">
-                        <input type="checkbox" id="fallFilter" checked>
-                        <label for="fallFilter">Fall Semester</label>
+                        <input type="checkbox" id="freshmanFilter" checked>
+                        <label for="freshmanFilter">Freshman (I)</label>
                     </div>
                     <div class="filter-checkbox">
-                        <input type="checkbox" id="springFilter" checked>
-                        <label for="springFilter">Spring Semester</label>
+                        <input type="checkbox" id="sophomoreFilter" checked>
+                        <label for="sophomoreFilter">Sophomore (II)</label>
+                    </div>
+                    <div class="filter-checkbox">
+                        <input type="checkbox" id="juniorFilter" checked>
+                        <label for="juniorFilter">Junior (III)</label>
+                    </div>
+                    <div class="filter-checkbox">
+                        <input type="checkbox" id="seniorFilter" checked>
+                        <label for="seniorFilter">Senior (IV)</label>
+                    </div>
+                    <div class="filter-checkbox">
+                        <input type="checkbox" id="generalFilter" checked>
+                        <label for="generalFilter">General</label>
                     </div>
                 </div>
                 
@@ -63,11 +75,10 @@
             </div>
             
             <div class="scheduler-area">
-                <div class="semester-tabs">
-                    <button class="semester-tab active" data-semester="fall">Fall 2025</button>
-                    <button class="semester-tab" data-semester="spring">Spring 2026</button>
+                <div class="semester-tabs" id="semesterTabs">
+                    !-- Tabs will be populated dynamically by JavaScript -->
                 </div>
-                
+
                 <div id="conflictWarnings"></div>
                 
                 <div class="schedule-grid" id="scheduleGrid">

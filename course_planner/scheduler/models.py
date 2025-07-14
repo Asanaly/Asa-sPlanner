@@ -15,16 +15,28 @@ class Course(models.Model):
     # Semester availability
     SEMESTER_CHOICES = [
         ('fall', 'Fall'),
-        ('winter', 'Winter'),
         ('spring', 'Spring'),
         ('summer', 'Summer'),
     ]
     available_semesters = models.JSONField(default=list)  # ["fall", "spring"]
     
+    # Grade level for academic planning
+    GRADE_LEVEL_CHOICES = [
+        ('freshman', 'Freshman'),
+        ('sophomore', 'Sophomore'),
+        ('junior', 'Junior'),
+        ('senior', 'Senior'),
+        ('general', 'General'),
+    ]
+    grade_level = models.CharField(
+        max_length=20,
+        choices=GRADE_LEVEL_CHOICES,
+        default='general'
+    )
+    
     # Basic metadata
     difficulty_level = models.IntegerField(default=3, choices=[(i, i) for i in range(1, 6)])  # 1-5 scale
     workload_hours = models.IntegerField(default=10)  # estimated hours per week
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -43,7 +55,6 @@ class UserSchedule(models.Model):
     
     # Position in the schedule grid (for UI state)
     position_data = models.JSONField(default=dict)  # {"x": 0, "y": 0} or similar
-    
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

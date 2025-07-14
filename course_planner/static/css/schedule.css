@@ -47,6 +47,8 @@
 }
 
 .scheduled-course {
+    margin: 0px;
+    width: 100%;
     color: white;
     padding: 8px;
     border-radius: 5px;

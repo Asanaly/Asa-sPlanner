@@ -1,51 +1,128 @@
 // Course list rendering and filtering
 
 /**
- * Render the course list in sidebar
+ * Render the course list in sidebar with smart sorting and grade level filtering
  */
 function renderCourseList() {
     const courseList = document.getElementById('courseList');
     const state = getAppState();
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const showFall = document.getElementById('fallFilter').checked;
-    const showSpring = document.getElementById('springFilter').checked;
+    
+    // Get grade level filter states
+    const showFreshman = document.getElementById('freshmanFilter')?.checked ?? true;
+    const showSophomore = document.getElementById('sophomoreFilter')?.checked ?? true;
+    const showJunior = document.getElementById('juniorFilter')?.checked ?? true;
+    const showSenior = document.getElementById('seniorFilter')?.checked ?? true;
+    const showGeneral = document.getElementById('generalFilter')?.checked ?? true;
     
     courseList.innerHTML = '';
     
+    // Filter by search term and grade level
     const filteredCourses = state.allCourses.filter(course => {
         const matchesSearch = course.code.toLowerCase().includes(searchTerm) || 
-                            course.name.toLowerCase().includes(searchTerm);
-        const matchesSemester = (showFall && course.available_semesters.includes('fall')) ||
-                              (showSpring && course.available_semesters.includes('spring'));
-        return matchesSearch && matchesSemester;
+                             course.name.toLowerCase().includes(searchTerm);
+        
+        const gradeLevel = course.grade_level || 'general';
+        const matchesGradeLevel = (gradeLevel === 'freshman' && showFreshman) ||
+                                 (gradeLevel === 'sophomore' && showSophomore) ||
+                                 (gradeLevel === 'junior' && showJunior) ||
+                                 (gradeLevel === 'senior' && showSenior) ||
+                                 (gradeLevel === 'general' && showGeneral);
+        
+        return matchesSearch && matchesGradeLevel;
     });
     
-    filteredCourses.forEach(course => {
+    // Sort courses: available for current semester first, then by grade level, then alphabetical
+    const currentSemester = state.currentSemester;
+    const gradeOrder = { 'freshman': 1, 'sophomore': 2, 'junior': 3, 'senior': 4, 'general': 5 };
+    
+    const sortedCourses = filteredCourses.sort((a, b) => {
+        const aAvailable = a.available_semesters.includes(currentSemester);
+        const bAvailable = b.available_semesters.includes(currentSemester);
+        
+        // Available courses first
+        if (aAvailable && !bAvailable) return -1;
+        if (!aAvailable && bAvailable) return 1;
+        
+        // Then by grade level
+        const aGrade = gradeOrder[a.grade_level || 'general'];
+        const bGrade = gradeOrder[b.grade_level || 'general'];
+        if (aGrade !== bGrade) return aGrade - bGrade;
+        
+        // Then alphabetical by course code
+        return a.code.localeCompare(b.code);
+    });
+    
+    sortedCourses.forEach(course => {
         const courseItem = createCourseItem(course);
         courseList.appendChild(courseItem);
     });
 }
 
 /**
- * Create a course item element
+ * Create a course item element with semester badges and grade level styling
  * @param {Object} course - Course data
  * @returns {HTMLElement} Course item element
  */
 function createCourseItem(course) {
     const courseItem = document.createElement('div');
+    const state = getAppState();
+    const isAvailableThisSemester = course.available_semesters.includes(state.currentSemester);
+    
+    // Debug logging
+    console.log(`Creating course item for ${course.code}:`);
+    console.log(`- Current semester: ${state.currentSemester}`);
+    console.log(`- Available semesters:`, course.available_semesters);
+    console.log(`- Available this semester: ${isAvailableThisSemester}`);
+    
     courseItem.className = 'course-item';
     courseItem.dataset.courseId = course.id;
     
-    // Check if course is already scheduled
+    // Add grade level styling
+    const gradeLevel = course.grade_level || 'general';
+    courseItem.classList.add(`grade-${gradeLevel}`);
+    
+    // Check if course is already scheduled for THIS semester
     const isScheduled = isCourseScheduled(course.id);
+    console.log(`- Is scheduled in ${state.currentSemester}: ${isScheduled}`);
+    
+    // Apply CSS classes based on state
     if (isScheduled) {
+        console.log(`- Adding 'disabled' class to ${course.code}`);
         courseItem.classList.add('disabled');
+    } else if (!isAvailableThisSemester) {
+        console.log(`- Adding 'semester-unavailable' class to ${course.code}`);
+        courseItem.classList.add('semester-unavailable');
     } else {
+        console.log(`- ${course.code} is available and draggable`);
         courseItem.draggable = true;
     }
     
+    // Create semester badges
+    const semesterBadges = course.available_semesters.map(semester => {
+        const badgeText = semester === 'fall' ? 'Fall' : 
+                         semester === 'spring' ? 'Spr' : 'Sum';
+        return `<span class="semester-badge semester-${semester}">${badgeText}</span>`;
+    }).join('');
+    
+    // Create grade level indicator
+    const gradeRomanMap = {
+        'freshman': 'I',
+        'sophomore': 'II', 
+        'junior': 'III',
+        'senior': 'IV',
+        'general': 'G'
+    };
+    const gradeRoman = gradeRomanMap[gradeLevel] || 'G';
+    
     courseItem.innerHTML = `
-        <div class="course-code" onclick="showCourseDetails(${course.id})">${course.code}</div>
+        <div class="course-header">
+            <div class="course-code" onclick="showCourseDetails(${course.id})">${course.code}</div>
+            <div class="course-indicators">
+                <span class="grade-indicator">${gradeRoman}</span>
+                <div class="semester-badges">${semesterBadges}</div>
+            </div>
+        </div>
         <div class="course-name">${course.name}</div>
         <div class="course-credits">${course.credits} credits</div>
         <div class="difficulty-indicator">
@@ -56,8 +133,8 @@ function createCourseItem(course) {
             : ''}
     `;
     
-    // Only add drag listeners if not disabled
-    if (!isScheduled) {
+    // Only add drag listeners if available and not scheduled
+    if (!isScheduled && isAvailableThisSemester) {
         courseItem.addEventListener('dragstart', handleDragStart);
     }
     
@@ -147,25 +224,20 @@ function setupCourseListListeners() {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            filterCoursesBySearch(e.target.value);
+            renderCourseList();
         });
     }
     
-    // Semester filters
-    const fallFilter = document.getElementById('fallFilter');
-    const springFilter = document.getElementById('springFilter');
-    
-    if (fallFilter) {
-        fallFilter.addEventListener('change', (e) => {
-            filterCoursesBySemester('fall', e.target.checked);
-        });
-    }
-    
-    if (springFilter) {
-        springFilter.addEventListener('change', (e) => {
-            filterCoursesBySemester('spring', e.target.checked);
-        });
-    }
+    // Grade level filters
+    const gradeFilters = ['freshmanFilter', 'sophomoreFilter', 'juniorFilter', 'seniorFilter', 'generalFilter'];
+    gradeFilters.forEach(filterId => {
+        const filter = document.getElementById(filterId);
+        if (filter) {
+            filter.addEventListener('change', () => {
+                renderCourseList();
+            });
+        }
+    });
 }
 
 // Export functions to global scope

@@ -213,15 +213,42 @@ async function handleDrop(e) {
     updateAppState({ draggedElement: null });
 }
 
-/**
- * Setup semester tab listeners
- */
 function setupSemesterTabs() {
+    const tabsContainer = document.getElementById('semesterTabs');
+    const semesters = getCurrentAcademicSemesters();
+    
+    tabsContainer.innerHTML = `
+        <button class="semester-tab active" data-semester="fall">${semesters.fall}</button>
+        <button class="semester-tab" data-semester="spring">${semesters.spring}</button>
+        <button class="semester-tab" data-semester="summer">${semesters.summer}</button>
+    `;
+    
+    // Add click listeners to new tabs
     document.querySelectorAll('.semester-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', (e) => {
+            console.log('🎯 Tab clicked:', e.target, 'Dataset:', e.target.dataset);
+            
+            // Ensure we get the button element, not child text node
+            const button = e.target.closest('button.semester-tab');
+            if (!button) {
+                console.error('❌ Could not find semester tab button');
+                return;
+            }
+            
+            const semester = button.dataset.semester;
+            console.log('🎯 Switching to semester:', semester);
+            
+            // Remove active class from all tabs
             document.querySelectorAll('.semester-tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            updateAppState({ currentSemester: this.dataset.semester });
+            // Add active class to clicked tab
+            button.classList.add('active');
+            
+            // Update current semester in state
+            updateAppState({ currentSemester: semester });
+            
+            // Re-render course list and schedule
+            renderCourseList();
+            renderScheduledCourses();
         });
     });
 }

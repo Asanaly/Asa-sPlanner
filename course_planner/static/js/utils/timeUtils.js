@@ -65,7 +65,22 @@ function minutesToTime(minutes) {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
 
-// Export functions to global scope for compatibility
+/**
+ * Get current academic year semesters with dynamic years
+ * @returns {Object} Object with semester labels and years
+ */
+function getCurrentAcademicSemesters() {
+    const currentYear = new Date().getFullYear();
+    
+    return {
+        fall: `Fall ${currentYear}`,
+        spring: `Spring ${currentYear}`,
+        summer: `Summer ${currentYear}`
+    };
+}
+
+// Export to global scope
+window.getCurrentAcademicSemesters = getCurrentAcademicSemesters;
 window.timeToMinutes = timeToMinutes;
 window.timeOverlapsOrContained = timeOverlapsOrContained;
 window.validateTimeSlots = validateTimeSlots;

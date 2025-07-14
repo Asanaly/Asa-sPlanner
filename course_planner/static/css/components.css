@@ -40,6 +40,27 @@
     transition: all 0.3s ease;
 }
 
+.course-item.semester-unavailable {
+    opacity: 0.6;
+    border: 1px dashed #ccc;
+    background: #f9f9f9;
+    cursor: not-allowed;
+}
+
+.course-item.semester-unavailable::after {
+    content: "Not available this semester";
+    display: block;
+    font-size: 0.7em;
+    color: #999;
+    font-style: italic;
+    margin-top: 3px;
+}
+
+.course-item.semester-unavailable:hover {
+    transform: none; /* Disable hover animation */
+    box-shadow: none;
+}
+
 .course-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -59,10 +80,58 @@
     100% { background-color: #f8f9fa; }
 }
 
+/* Replace the .course-item.disabled styling in components.css with this: */
+
 .course-item.disabled {
-    opacity: 0.5;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    border: 2px solid #28a745;
+    opacity: 0.9;
+    cursor: default;
+    position: relative;
+}
+
+.course-item.disabled::before {
+    content: "✓ Scheduled";
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: #28a745;
+    color: white;
+    font-size: 0.7em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.course-item.disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%);
+}
+
+.course-item.disabled .course-code {
+    color: #155724;
+}
+
+.course-item.disabled .course-name {
+    color: #155724;
+}
+
+/* Keep the semester-unavailable styling as is for truly unavailable courses */
+.course-item.semester-unavailable {
+    opacity: 0.6;
+    border: 1px dashed #ccc;
+    background: #f9f9f9;
     cursor: not-allowed;
-    background: #f1f3f4;
+}
+
+.course-item.semester-unavailable::after {
+    content: "Not available this semester";
+    display: block;
+    font-size: 0.7em;
+    color: #999;
+    font-style: italic;
+    margin-top: 3px;
 }
 
 .course-code {
@@ -180,4 +249,149 @@
 
 .semester-tab:hover {
     background: #f8f9fa;
+}
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
+}
+
+.semester-badges {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.semester-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 500;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.semester-badge.semester-fall {
+    background-color: #e67e22;
+}
+
+.semester-badge.semester-spring {
+    background-color: #27ae60;
+}
+
+.semester-badge.semester-summer {
+    background-color: #f39c12;
+}
+
+/* Add these styles to components.css */
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
+}
+
+.course-indicators {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.grade-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 0.7em;
+    font-weight: bold;
+    background: #f8f9fa;
+    color: #666;
+    border: 2px solid #ddd;
+}
+
+.semester-badges {
+    display: flex;
+    gap: 4px;
+}
+
+.semester-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 0.7em;
+    font-weight: 500;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.semester-badge.semester-fall {
+    background-color: #e67e22;
+}
+
+.semester-badge.semester-spring {
+    background-color: #27ae60;
+}
+
+.semester-badge.semester-summer {
+    background-color: #f39c12;
+}
+
+/* Grade level borders and indicators */
+.course-item.grade-freshman {
+    border-left: 3px solid #27ae60;
+}
+
+.course-item.grade-freshman .grade-indicator {
+    background: #27ae60;
+    color: white;
+    border-color: #27ae60;
+}
+
+.course-item.grade-sophomore {
+    border-left: 3px solid #3498db;
+}
+
+.course-item.grade-sophomore .grade-indicator {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.course-item.grade-junior {
+    border-left: 3px solid #9b59b6;
+}
+
+.course-item.grade-junior .grade-indicator {
+    background: #9b59b6;
+    color: white;
+    border-color: #9b59b6;
+}
+
+.course-item.grade-senior {
+    border-left: 3px solid #e74c3c;
+}
+
+.course-item.grade-senior .grade-indicator {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.course-item.grade-general {
+    border-left: 3px solid #95a5a6;
+}
+
+.course-item.grade-general .grade-indicator {
+    background: #95a5a6;
+    color: white;
+    border-color: #95a5a6;
 }

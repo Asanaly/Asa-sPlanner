@@ -31,7 +31,7 @@ window.AppState = {
 };
 
 /**
- * Update application state
+ * Update application state (FIXED VERSION)
  * @param {Object} updates - State updates to apply
  */
 function updateAppState(updates) {
@@ -46,19 +46,20 @@ function updateAppState(updates) {
         renderScheduledCourses();
         updateStats();
         showConflictWarnings();
+        renderCourseList(); // ← FIX: Re-render course list to update disabled states
     }
     
     if (updates.currentSemester !== undefined) {
         renderScheduledCourses();
         updateStats();
         showConflictWarnings();
+        renderCourseList(); // ← This was already here, so semester switching worked
     }
     
     if (updates.filters !== undefined) {
         renderCourseList();
     }
 }
-
 /**
  * Get current application state
  * @returns {Object} Current state
@@ -105,19 +106,17 @@ function resetAppState() {
 }
 
 /**
- * Add course to schedule
- * @param {Object} course - Course object
- * @param {string} semester - Semester
- * @param {number} year - Year
+ * Remove course from specific semester schedule
+ * @param {number} courseId - Course ID to remove
+ * @param {string} semester - Semester to remove from (optional, defaults to current)
  */
-function addCourseToState(course, semester, year) {
-    const scheduleItem = {
-        course: course,
-        semester: semester || window.AppState.currentSemester,
-        year: year || (semester === 'fall' ? 2025 : 2026)
-    };
+function removeCourseFromState(courseId, semester) {
+    const targetSemester = semester || window.AppState.currentSemester;
     
-    window.AppState.currentSchedule.push(scheduleItem);
+    window.AppState.currentSchedule = window.AppState.currentSchedule.filter(
+        item => !(item.course.id === courseId && item.semester === targetSemester)
+    );
+    
     updateAppState({ currentSchedule: window.AppState.currentSchedule });
     
     // Auto-save if enabled
@@ -127,10 +126,65 @@ function addCourseToState(course, semester, year) {
 }
 
 /**
- * Remove course from schedule
- * @param {number} courseId - Course ID to remove
+ * Add course to schedule (DEBUG VERSION)
+ * @param {Object} course - Course object
+ * @param {string} semester - Semester
+ * @param {number} year - Year
  */
-function removeCourseFromState(courseId) {
+function addCourseToState(course, semester, year) {
+    console.log('🔧 addCourseToState called with:', {
+        courseCode: course.code,
+        courseId: course.id,
+        semester: semester,
+        year: year
+    });
+    
+    const targetSemester = semester || window.AppState.currentSemester;
+    console.log('🎯 Target semester:', targetSemester);
+    
+    // Check if course is already scheduled for this specific semester
+    const alreadyScheduled = window.AppState.currentSchedule.some(
+        item => item.course.id === course.id && item.semester === targetSemester
+    );
+    
+    console.log('🔍 Already scheduled check:', {
+        alreadyScheduled: alreadyScheduled,
+        currentSchedule: window.AppState.currentSchedule
+    });
+    
+    if (alreadyScheduled) {
+        console.warn(`⚠️ Course ${course.code} is already scheduled for ${targetSemester}`);
+        return;
+    }
+    
+    const scheduleItem = {
+        course: course,
+        semester: targetSemester,
+        year: year || (targetSemester === 'fall' ? 2025 : 2026)
+    };
+    
+    console.log('📝 Creating schedule item:', scheduleItem);
+    
+    window.AppState.currentSchedule.push(scheduleItem);
+    console.log('📊 Schedule after push:', window.AppState.currentSchedule);
+    
+    updateAppState({ currentSchedule: window.AppState.currentSchedule });
+    console.log('🔄 updateAppState called');
+    
+    // Auto-save if enabled
+    if (window.AppState.settings.autoSave) {
+        console.log('💾 Auto-saving...');
+        saveStateToStorage();
+    }
+    
+    console.log('✅ addCourseToState completed');
+}
+
+/**
+ * Remove course from ALL semesters (for complete removal)
+ * @param {number} courseId - Course ID to remove completely
+ */
+function removeCourseFromAllSemesters(courseId) {
     window.AppState.currentSchedule = window.AppState.currentSchedule.filter(
         item => item.course.id !== courseId
     );
@@ -143,11 +197,93 @@ function removeCourseFromState(courseId) {
 }
 
 /**
- * Check if course is already scheduled
+ * Remove course from specific semester schedule
+ * @param {number} courseId - Course ID to remove
+ * @param {string} semester - Semester to remove from (optional, defaults to current)
+ */
+function removeCourseFromState(courseId, semester) {
+    const targetSemester = semester || window.AppState.currentSemester;
+    
+    window.AppState.currentSchedule = window.AppState.currentSchedule.filter(
+        item => !(item.course.id === courseId && item.semester === targetSemester)
+    );
+    
+    updateAppState({ currentSchedule: window.AppState.currentSchedule });
+    
+    // Auto-save if enabled
+    if (window.AppState.settings.autoSave) {
+        saveStateToStorage();
+    }
+}
+
+/**
+ * Add course to schedule
+ * @param {Object} course - Course object
+ * @param {string} semester - Semester
+ * @param {number} year - Year
+ */
+function addCourseToState(course, semester, year) {
+    const targetSemester = semester || window.AppState.currentSemester;
+    
+    // Check if course is already scheduled for this specific semester
+    const alreadyScheduled = window.AppState.currentSchedule.some(
+        item => item.course.id === course.id && item.semester === targetSemester
+    );
+    
+    if (alreadyScheduled) {
+        console.warn(`Course ${course.code} is already scheduled for ${targetSemester}`);
+        return;
+    }
+    
+    const scheduleItem = {
+        course: course,
+        semester: targetSemester,
+        year: year || (targetSemester === 'fall' ? 2025 : 2026)
+    };
+    
+    window.AppState.currentSchedule.push(scheduleItem);
+    updateAppState({ currentSchedule: window.AppState.currentSchedule });
+    
+    // Auto-save if enabled
+    if (window.AppState.settings.autoSave) {
+        saveStateToStorage();
+    }
+}
+
+/**
+ * Remove course from ALL semesters (for complete removal)
+ * @param {number} courseId - Course ID to remove completely
+ */
+function removeCourseFromAllSemesters(courseId) {
+    window.AppState.currentSchedule = window.AppState.currentSchedule.filter(
+        item => item.course.id !== courseId
+    );
+    updateAppState({ currentSchedule: window.AppState.currentSchedule });
+    
+    // Auto-save if enabled
+    if (window.AppState.settings.autoSave) {
+        saveStateToStorage();
+    }
+}
+
+/**
+ * Check if course is already scheduled for the current semester
  * @param {number} courseId - Course ID
- * @returns {boolean} True if course is scheduled
+ * @returns {boolean} True if course is scheduled in current semester
  */
 function isCourseScheduled(courseId) {
+    const state = getAppState();
+    return state.currentSchedule.some(item => 
+        item.course.id === courseId && item.semester === state.currentSemester
+    );
+}
+
+/**
+ * Check if course is scheduled in any semester (for global checks)
+ * @param {number} courseId - Course ID
+ * @returns {boolean} True if course is scheduled anywhere
+ */
+function isCourseScheduledAnywhere(courseId) {
     return window.AppState.currentSchedule.some(item => item.course.id === courseId);
 }
 

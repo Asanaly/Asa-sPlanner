@@ -27,6 +27,7 @@ def api_courses(request):
             'available_semesters': course.available_semesters,
             'difficulty_level': course.difficulty_level,
             'workload_hours': course.workload_hours,
+            'grade_level': course.grade_level,  # ADD THIS LINE
             'prerequisites': [p.code for p in course.prerequisites.all()]
         })
     
@@ -46,12 +47,12 @@ def api_course_detail(request, course_id):
             'available_semesters': course.available_semesters,
             'difficulty_level': course.difficulty_level,
             'workload_hours': course.workload_hours,
+            'grade_level': course.grade_level,  # ADD THIS LINE TOO
             'prerequisites': [p.code for p in course.prerequisites.all()]
         }
         return JsonResponse(course_data)
     except Course.DoesNotExist:
         return JsonResponse({'error': 'Course not found'}, status=404)
-
 @login_required
 def api_user_schedule(request):
     """Get user's current schedule"""

@@ -1,44 +1,65 @@
 // Schedule management functions
 
 /**
- * Add course to schedule with validation
+ * Add course to schedule with validation (DEBUG VERSION)
  * @param {Object} course - Course object
  */
 async function addCourseToSchedule(course) {
+    console.log('🎯 addCourseToSchedule called with:', course);
+    
     const state = getAppState();
+    console.log('📊 Current state:', {
+        currentSemester: state.currentSemester,
+        scheduleLength: state.currentSchedule.length
+    });
     
     // Validate time slots are within grid bounds
     const validTimeSlots = validateTimeSlots(course.time_slots);
+    console.log('⏰ Valid time slots:', validTimeSlots);
     
     if (validTimeSlots.length === 0) {
+        console.log('❌ No valid time slots, aborting');
         alert(`Course ${course.code} has time slots outside the schedule grid (8:00-22:00).`);
         return;
     }
-
+    
     // Check for conflicts
     const currentCourseIds = getCurrentSemesterCourses().map(s => s.course.id);
+    console.log('📋 Current semester course IDs:', currentCourseIds);
+    
     const conflicts = await checkScheduleConflicts([...currentCourseIds, course.id]);
+    console.log('⚠️ Conflicts found:', conflicts);
     
     if (conflicts.length > 0) {
-        const conflictMessages = conflicts.map(c => 
+        const conflictMessages = conflicts.map(c =>
             `${c.course1} conflicts with ${c.course2} on ${c.day}`
         ).join('\n');
         
+        console.log('🤔 Asking user about conflicts...');
         if (!confirm(`Warning: Schedule conflicts detected:\n${conflictMessages}\n\nDo you want to add this course anyway?`)) {
+            console.log('❌ User cancelled due to conflicts');
             return;
         }
+        console.log('✅ User accepted conflicts');
     }
     
     // Add to state
+    console.log('➕ Calling addCourseToState...');
     addCourseToState(course, state.currentSemester);
+    
+    console.log('📊 State after adding:', {
+        scheduleLength: getAppState().currentSchedule.length,
+        schedule: getAppState().currentSchedule
+    });
 }
 
 /**
- * Remove course from schedule
+ * Remove course from current semester schedule
  * @param {number} courseId - Course ID to remove
  */
 function removeCourseFromSchedule(courseId) {
-    removeCourseFromState(courseId);
+    const state = getAppState();
+    removeCourseFromState(courseId, state.currentSemester);
 }
 
 /**

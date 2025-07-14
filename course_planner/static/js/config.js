@@ -1,5 +1,13 @@
 // Application configuration and constants
 window.CONFIG = {
+    // Semester config
+    SEMESTERS: ['fall', 'spring', 'summer'],
+    SEMESTER_LABELS: {
+        fall: 'Fall 2025',
+        spring: 'Spring 2026', 
+        summer: 'Summer 2026'
+    },
+
     // Course color palette
     COURSE_COLORS: [
         'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
