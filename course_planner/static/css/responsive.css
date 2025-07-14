@@ -1,0 +1,78 @@
+/* Responsive design and mobile styles */
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .schedule-grid {
+        grid-template-columns: 80px repeat(5, 1fr);
+        grid-template-rows: 30px repeat(12, 50px);
+    }
+    
+    .header h1 {
+        font-size: 2em;
+    }
+    
+    .course-item {
+        padding: 10px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .course-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .header {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.8em;
+    }
+    
+    .sidebar {
+        padding: 15px;
+    }
+    
+    .scheduler-area {
+        padding: 15px;
+    }
+    
+    .semester-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .semester-tab {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 8px;
+    }
+    
+    .stat-value {
+        font-size: 1.2em;
+    }
+}

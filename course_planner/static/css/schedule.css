@@ -1,0 +1,87 @@
+/* Schedule grid specific styles */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(5, 1fr);
+    grid-template-rows: 40px repeat(12, 60px);
+    gap: 2px;
+    margin-bottom: 20px;
+}
+
+.time-slot {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.day-header {
+    background: #667eea;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.time-header {
+    background: #667eea;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    font-size: 0.8em;
+}
+
+.schedule-slot {
+    background: white;
+    border: 2px dashed #ddd;
+    border-radius: 5px;
+    min-height: 60px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.schedule-slot.drag-over {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.scheduled-course {
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    margin: 2px;
+    font-size: 0.9em;
+    position: absolute;
+    cursor: move;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 4px);
+    z-index: 2;
+    overflow: hidden;
+}
+
+.scheduled-course:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.remove-course {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-course:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

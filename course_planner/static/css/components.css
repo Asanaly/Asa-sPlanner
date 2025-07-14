@@ -1,0 +1,183 @@
+/* Course list and filter components */
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.filter-checkbox {
+    margin-bottom: 10px;
+}
+
+.filter-checkbox input {
+    margin-right: 8px;
+}
+
+.filter-checkbox label {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.course-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.course-item {
+    background: #f8f9fa;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    cursor: move;
+    transition: all 0.3s ease;
+}
+
+.course-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-item.highlight-found {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    border: 2px solid #667eea;
+    transition: all 0.5s ease;
+    animation: pulse-highlight 0.8s ease-in-out;
+}
+
+@keyframes pulse-highlight {
+    0% { background-color: #f8f9fa; }
+    50% { background-color: #e3f2fd; }
+    100% { background-color: #f8f9fa; }
+}
+
+.course-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f3f4;
+}
+
+.course-code {
+    font-weight: bold;
+    color: #667eea;
+    font-size: 1.1em;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.course-code:hover {
+    color: #5a67d8;
+}
+
+.prerequisites-link {
+    color: #28a745;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-top: 5px;
+    display: block;
+}
+
+.prerequisites-link:hover {
+    color: #218838;
+}
+
+.course-name {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.course-credits {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 5px;
+}
+
+.difficulty-indicator {
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.difficulty-star {
+    color: #ffc107;
+    font-size: 0.8em;
+}
+
+/* Statistics section */
+.stats-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.stat-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Conflict warnings */
+.conflict-warning {
+    background: #ff6b6b;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+/* Semester tabs */
+.semester-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.semester-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #666;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.semester-tab.active {
+    color: #667eea;
+    border-bottom: 2px solid #667eea;
+}
+
+.semester-tab:hover {
+    background: #f8f9fa;
+}
